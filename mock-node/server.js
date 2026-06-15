@@ -3,6 +3,9 @@ const http = require("http");
 const NODE_ID = process.env.NODE_ID || "unknown";
 const PORT = parseInt(process.env.PORT || "3000");
 
+console.log("PORT env:", process.env.PORT);
+console.log("Parsed PORT:", PORT);
+
 let activeConnections = 0;
 let cpuUsage = Math.random() * 30;
 let totalRequests = 0;
