@@ -35,4 +35,14 @@ EXPOSE 80
 
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Copy the entrypoint script into the container
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
+# Give execution permissions to the script
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Ensure envsubst is installed (part of gettext package) to swap out the port variable
+RUN apt-get update && apt-get install -y gettext-base
+
+# Execute the entrypoint script on boot
+CMD ["/usr/local/bin/entrypoint.sh"]
