@@ -1,5 +1,6 @@
 #!/bin/sh
-
+set -e
+php /var/www/html/artisan --version || echo "Artisan failed"
 # If Railway provides a PORT variable, inject it into the default Nginx config template
 if [ -n "$PORT" ]; then
   echo "Injecting Railway assigned port ($PORT) into Nginx configuration..."
