@@ -1,6 +1,4 @@
 #!/bin/sh
-set -e
-php /var/www/html/artisan --version || echo "Artisan failed"
 # If Railway provides a PORT variable, inject it into the default Nginx config template
 if [ -n "$PORT" ]; then
   echo "Injecting Railway assigned port ($PORT) into Nginx configuration..."
@@ -13,5 +11,8 @@ else
   mv /etc/nginx/sites-available/default.tmp /etc/nginx/sites-available/default
 fi
 
+php /var/www/html/artisan migrate --force || echo "Migration warning (non-fatal)"
+php /var/www/html/artisan config:cache
+php /var/www/html/artisan route:cache
 # Hand over execution to supervisor to manage PHP-FPM and Nginx
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
