@@ -1,5 +1,0 @@
-[phases.setup]
-nixPkgs = ["php83", "php83Extensions.redis", "php83Extensions.pdo", "composer"]
-
-[start]
-cmd = "php artisan config:cache && php artisan route:cache && php artisan serve --host=0.0.0.0 --port=$PORT"
