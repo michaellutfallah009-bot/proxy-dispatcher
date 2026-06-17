@@ -10,7 +10,7 @@ let activeConnections = 0;
 let cpuUsage = Math.random() * 30;
 let totalRequests = 0;
 let errors = 0;
-
+let lastLatencyMs = 10 + Math.random() * 30;
 setInterval(() => {
     cpuUsage = Math.max(5, Math.min(85, cpuUsage + (Math.random() * 10 - 5)));
 }, 3000);
@@ -25,7 +25,7 @@ const server = http.createServer((req, res) => {
         const latency = 10 + Math.random() * 80;
         setTimeout(() => {
             activeConnections = Math.max(0, activeConnections - 1);
-
+             lastLatencyMs = latency;
             if (Math.random() < 0.05) {
                 errors++;
                 res.writeHead(500);
@@ -56,6 +56,7 @@ const server = http.createServer((req, res) => {
                 node_id: NODE_ID,
                 active_connections: activeConnections,
                 cpu_usage: parseFloat(cpuUsage.toFixed(1)),
+                latency_ms: parseFloat(lastLatencyMs.toFixed(1)),
                 total_requests: totalRequests,
                 error_count: errors,
                 success_rate:
@@ -76,6 +77,7 @@ const server = http.createServer((req, res) => {
     if (req.method === "POST" && url === "/chaos/peak-load") {
         cpuUsage = 95;
         activeConnections = 155;
+         lastLatencyMs = 350 + Math.random() * 100;
         res.writeHead(200);
         res.end(
             JSON.stringify({ node: NODE_ID, chaos: "peak-load activated" }),
@@ -87,6 +89,7 @@ const server = http.createServer((req, res) => {
         cpuUsage = 20;
         activeConnections = 0;
         errors = 0;
+         lastLatencyMs = 10 + Math.random() * 30;
         res.writeHead(200);
         res.end(JSON.stringify({ node: NODE_ID, chaos: "reset" }));
         return;

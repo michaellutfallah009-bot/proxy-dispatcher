@@ -167,7 +167,7 @@ final class DispatcherController extends Controller
             Redis::set(self::KEY_NODE_PFX  . $id . ':online',      '1');
             Redis::set(self::KEY_NODE_PFX  . $id . ':connections',  0);
             Redis::set(self::KEY_TELEMETRY . $id . ':cpu',          0);
-            Redis::set(self::KEY_TELEMETRY . $id . ':latency',      0);
+            Redis::del(self::KEY_TELEMETRY . $id . ':latency');
             Redis::set(self::KEY_TELEMETRY . $id . ':errors',       0);
             Redis::set(self::KEY_TELEMETRY . $id . ':success',      0);
 
@@ -228,6 +228,13 @@ final class DispatcherController extends Controller
                     Redis::set(
                         self::KEY_NODE_PFX . $id . ':connections',
                         (int) ($stats['active_connections'] ?? 0)
+                    );
+                }
+                $currentLatency = (float) (Redis::get(self::KEY_TELEMETRY . $id . ':latency') ?? 0);
+                if ($currentLatency <= 0 && isset($stats['latency_ms'])) {
+                    Redis::set(
+                        self::KEY_TELEMETRY . $id . ':latency',
+                        (float) $stats['latency_ms']
                     );
                 }
             } catch (\Exception) {
