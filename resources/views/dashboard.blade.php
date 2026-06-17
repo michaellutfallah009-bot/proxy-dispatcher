@@ -290,8 +290,6 @@
 
                 <div class="text-xs text-dispatch-muted mb-4 font-mono">
                     Weight: <span class="text-blue-400">{{ $node['weight'] }}</span>
-                    &nbsp;·&nbsp;
-                    URL: <span class="text-dispatch-muted">{{ $node['url'] }}</span>
                 </div>
 
                 <div class="grid grid-cols-3 gap-3 mb-4">

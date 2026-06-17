@@ -70,7 +70,6 @@ final class ServerNode
     {
         return [
             'id'                 => $this->id,
-            'url'                => $this->url,
             'weight'             => $this->weight,
             'online'             => $this->online,
             'active_connections' => $this->activeConnections,
