@@ -31,6 +31,8 @@ final class DispatcherController extends Controller
 
     public function dashboard(): View
     {
+        $this->resetAllState();
+
         $activeStrategy = Redis::get(self::KEY_STRATEGY) ?? 'round_robin';
         $nodes          = $this->hydrateNodes()->map(fn(ServerNode $n) => $n->toArray())->values()->toArray();
         $strategies     = StrategyFactory::catalog();
@@ -152,8 +154,16 @@ final class DispatcherController extends Controller
 
     public function chaosReset(): JsonResponse
     {
+        $this->resetAllState();
+
+        return response()->json(['chaos' => 'reset']);
+    }
+
+    private function resetAllState(): void
+    {
         foreach ($this->nodeDefinitions() as $def) {
             $id = $def['id'];
+
             Redis::set(self::KEY_NODE_PFX  . $id . ':online',      '1');
             Redis::set(self::KEY_NODE_PFX  . $id . ':connections',  0);
             Redis::set(self::KEY_TELEMETRY . $id . ':cpu',          0);
@@ -166,11 +176,7 @@ final class DispatcherController extends Controller
             } catch (\Exception) {
             }
         }
-
-        return response()->json(['chaos' => 'reset']);
     }
-
-
     private function hydrateNodes(): Collection
     {
         return collect($this->nodeDefinitions())->map(function (array $def) {
@@ -194,9 +200,12 @@ final class DispatcherController extends Controller
                 avgLatencyMs: $latency,
                 cpuUsage: $cpu,
                 successRate: $successRate,
+                errorCount: $errors,
+                successCount: $success,
             );
         });
     }
+
 
 
     private function refreshTelemetry(): void
@@ -216,14 +225,10 @@ final class DispatcherController extends Controller
                         self::KEY_TELEMETRY . $id . ':cpu',
                         (float) ($stats['cpu_usage'] ?? 0)
                     );
-
-                    $localConn = (int) (Redis::get(self::KEY_NODE_PFX . $id . ':connections') ?? 0);
-                    if ($localConn === 0) {
-                        Redis::set(
-                            self::KEY_NODE_PFX . $id . ':connections',
-                            (int) ($stats['active_connections'] ?? 0)
-                        );
-                    }
+                    Redis::set(
+                        self::KEY_NODE_PFX . $id . ':connections',
+                        (int) ($stats['active_connections'] ?? 0)
+                    );
                 }
             } catch (\Exception) {
             }

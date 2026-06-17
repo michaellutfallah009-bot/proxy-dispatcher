@@ -294,7 +294,7 @@
                     URL: <span class="text-dispatch-muted">{{ $node['url'] }}</span>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="grid grid-cols-3 gap-3 mb-4">
                     <div>
                         <div class="text-xs text-dispatch-muted mb-1">Active Connections</div>
                         <div class="stat-value text-white" id="conn-{{ $node['id'] }}">
@@ -318,6 +318,14 @@
                         <div class="text-xs text-dispatch-muted mb-1">Success Rate</div>
                         <div class="stat-value text-green-400" id="success-{{ $node['id'] }}">
                             {{ number_format($node['success_rate'] * 100, 1) }}<span class="text-xs text-dispatch-muted">%</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-dispatch-muted mb-1">Errors</div>
+                            <div class="stat-value" id="errors-{{ $node['id'] }}"
+                             style="color: {{ $node['error_count'] > 0 ? '#ef4444' : '#64748b' }}">
+                            {{ $node['error_count'] }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -568,7 +576,11 @@ function updateNodeCard(node) {
     setText(`conn-${id}`,    node.active_connections);
     setText(`latency-${id}`, node.avg_latency_ms.toFixed(1) + '<span class="text-xs text-dispatch-muted">ms</span>');
     setText(`success-${id}`, (node.success_rate * 100).toFixed(1) + '<span class="text-xs text-dispatch-muted">%</span>');
-
+    const errorsEl = document.getElementById(`errors-${id}`);
+    if (errorsEl) {
+        errorsEl.textContent = node.error_count;
+        errorsEl.style.color = node.error_count > 0 ? '#ef4444' : '#64748b';
+    }
     const cpuColor = node.cpu_usage > 80 ? '#ef4444' : (node.cpu_usage > 50 ? '#f59e0b' : '#10b981');
     const cpuEl    = document.getElementById(`cpu-${id}`);
     if (cpuEl) {
