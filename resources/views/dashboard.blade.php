@@ -324,7 +324,6 @@
                              style="color: {{ $node['error_count'] > 0 ? '#ef4444' : '#64748b' }}">
                             {{ $node['error_count'] }}
                             </div>
-                        </div>
                     </div>
                 </div>
 
